@@ -1,0 +1,46 @@
+{
+  "name": "@arweave-wallet-kit/othent-strategy",
+  "version": "0.0.1-beta.0",
+  "description": "Othent strategy for the Arweave Wallet Kit",
+  "repository": "https://github.com/labscommunity/wallet-kit-othent",
+  "author": "Marton Lederer <marton@lederer.hu>",
+  "license": "MIT",
+  "private": false,
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "fmt": "prettier . --write"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.umd.js",
+  "module": "./dist/index.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.umd.js"
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.2",
+    "arweave": "^1.14.0",
+    "othent": "^1.0.634",
+    "prettier": "^3.0.0",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.3",
+    "vite-plugin-dts": "^3.2.0"
+  },
+  "dependencies": {
+    "@arweave-wallet-kit/core": "^0.0.1-beta.1"
+  },
+  "peerDependencies": {
+    "othent": ">= 1.0.634 < 2"
+  }
+}
