@@ -12,6 +12,9 @@ export default defineConfig({
       name: "@arweave-wallet-kit/othent-strategy",
       formats: ["es", "umd"],
       fileName: (format) => `index.${format}.js`
+    },
+    rollupOptions: {
+      external: ["othent", "@arweave-wallet-kit/core"]
     }
   }
 });
