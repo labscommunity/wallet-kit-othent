@@ -1,5 +1,5 @@
 import { AppInfo, DispatchResult, GatewayConfig, PermissionType } from "@arweave-wallet-kit/core/wallet";
-import type { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface";
+import type { SignatureOptions } from "arweave/web/lib/crypto/crypto-interface";
 import { Strategy } from "@arweave-wallet-kit/core/strategy";
 import type Transaction from "arweave/web/lib/transaction";
 import { ListenerFunction } from "./types";
