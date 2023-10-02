@@ -32,7 +32,7 @@
     "@arweave-wallet-kit/core": "^0.0.1-beta.1",
     "@types/node": "^20.4.2",
     "arweave": "^1.12.2",
-    "othent": "^1.0.634",
+    "othent": "^1.0.645",
     "prettier": "^3.0.0",
     "typescript": "^5.1.6",
     "vite": "^4.4.3",
@@ -40,6 +40,6 @@
   },
   "peerDependencies": {
     "@arweave-wallet-kit/core": ">= 0.0.1-beta.1 < 2",
-    "othent": ">= 1.0.634 < 2"
+    "othent": ">= 1.0.645 < 2"
   }
 }
