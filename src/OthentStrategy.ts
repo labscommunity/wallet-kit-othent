@@ -4,7 +4,7 @@ import { Strategy } from "@arweave-wallet-kit/core/strategy";
 import type Transaction from "arweave/web/lib/transaction";
 import * as othent from "@othent/kms";
 
-import { userDetails } from "./utils";
+import { deleteStoredToken, userDetails } from "./utils";
 import { ConnectResult } from "./types";
 
 export default class OthentStrategy implements Strategy {
@@ -54,6 +54,7 @@ export default class OthentStrategy implements Strategy {
 
   public async disconnect() {
     await othent.disconnect();
+    deleteStoredToken();
 
     for (const listener of this.#addressListeners) {
       listener(undefined as any);

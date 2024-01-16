@@ -36,6 +36,16 @@ export async function userDetails(): Promise<ConnectResult> {
   delete decoded_JWT.iat;
   delete decoded_JWT.exp;
   delete decoded_JWT.updated_at;
-  
+
   return decoded_JWT;
+}
+
+export function deleteStoredToken() {
+  const id_token = localStorage.getItem("id_token");
+
+  if (!id_token) {
+    return true;
+  }
+
+  localStorage.removeItem("id_token");
 }
