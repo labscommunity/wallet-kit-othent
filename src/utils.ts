@@ -46,6 +46,5 @@ export function deleteStoredToken() {
   if (!id_token) {
     return true;
   }
-
   localStorage.removeItem("id_token");
 }
