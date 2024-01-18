@@ -1,5 +1,5 @@
 {
-  "name": "@arweave-wallet-kit-beta/othent-strategy",
+  "name": "@arweave-wallet-kit/othent-strategy",
   "version": "0.0.1-beta.5",
   "description": "Othent strategy for the Arweave Wallet Kit",
   "repository": "https://github.com/labscommunity/wallet-kit-othent",
