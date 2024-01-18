@@ -2,9 +2,10 @@ import type { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface"
 import type { DispatchResult, GatewayConfig, PermissionType } from "arconnect";
 import { Strategy } from "@arweave-wallet-kit/core/strategy";
 import type Transaction from "arweave/web/lib/transaction";
+import { bufferTob64, b64UrlToBuffer } from "arweave/web/lib/utils";
 import * as othent from "@othent/kms";
 
-import { deleteStoredToken, userDetails } from "./utils";
+import { deleteStoredToken, isBase64, userDetails } from "./utils";
 import { ConnectResult } from "./types";
 
 export default class OthentStrategy implements Strategy {
@@ -15,6 +16,11 @@ export default class OthentStrategy implements Strategy {
   public theme = "35, 117, 239";
   public logo = "33nBIUNlGK4MnWtJZQy9EzkVJaAd7WoydIKfkJoMvDs";
   public url = "https://othent.io";
+  public config: GatewayConfig = {
+    host: "arweave.net",
+    port: 443,
+    protocol: "https"
+  };
 
   #addressListeners: ListenerFunction[] = [];
   #currentAddress: string = "";
@@ -27,19 +33,7 @@ export default class OthentStrategy implements Strategy {
    */
 
   public async isAvailable() {
-    try {
-      // ensure instance
-      // await this.#othentInstance(false);
-
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  public async ping() {
-    // const othent = await this.#othentInstance(false);
-    // return await othent.ping();
+    return true;
   }
 
   public async connect() {
@@ -63,28 +57,24 @@ export default class OthentStrategy implements Strategy {
     this.#currentAddress = "";
   }
 
-  public async decrypt(
-    data: BufferSource,
-    algorithm: RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams
-  ): Promise<Uint8Array> {
-    //
+  public async decrypt(data: Uint8Array): Promise<Uint8Array> {
+    const response = await othent.decrypt(data);
 
-    // return []
-    return "" as any;
+    if (!isBase64(response)) {
+      throw new Error("Failed to decrypt your file");
+    }
+
+    return b64UrlToBuffer(response);
   }
 
   public async dispatch(transaction: Transaction): Promise<DispatchResult> {
     return "" as any;
   }
 
-  public async encrypt(
-    data: BufferSource,
-    algorithm: RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams
-  ): Promise<Uint8Array> {
-    //
+  public async encrypt(data: Uint8Array): Promise<Uint8Array> {
+    const base64 = bufferTob64(data);
 
-    // return []
-    return "" as any;
+    return othent.encrypt(base64) as unknown as Uint8Array;
   }
 
   public async getPermissions() {
@@ -126,14 +116,14 @@ export default class OthentStrategy implements Strategy {
     return [addr];
   }
 
+  public async getArweaveConfig(): Promise<GatewayConfig> {
+    return this.config;
+  }
+
   public async getActivePublicKey(): Promise<string> {
     const pubKey = await othent.getActivePublicKey();
 
     return pubKey;
-  }
-
-  public async getArweaveConfig(): Promise<GatewayConfig> {
-    return "" as any;
   }
 
   public async getWalletNames(): Promise<{
@@ -186,11 +176,8 @@ export default class OthentStrategy implements Strategy {
     );
   }
 
-  public async signature(
-    data: Uint8Array,
-    algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams
-  ): Promise<Uint8Array> {
-    return "" as any;
+  public async signature(data: Uint8Array): Promise<Uint8Array> {
+    return await othent.signature(data);
   }
 }
 
