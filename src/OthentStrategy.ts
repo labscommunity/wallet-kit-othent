@@ -67,8 +67,8 @@ export default class OthentStrategy implements Strategy {
     return b64UrlToBuffer(response);
   }
 
-  public async dispatch(transaction: Transaction): Promise<DispatchResult> {
-    return "" as any;
+  public async dispatch(transaction: Transaction): Promise<{ id: string }> {
+    return othent.dispatch(transaction);
   }
 
   public async encrypt(data: Uint8Array): Promise<Uint8Array> {
