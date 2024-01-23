@@ -2,21 +2,23 @@ import type { SignatureOptions } from "arweave/node/lib/crypto/crypto-interface"
 import type { DispatchResult, GatewayConfig, PermissionType } from "arconnect";
 import { Strategy } from "@arweave-wallet-kit/core/strategy";
 import type Transaction from "arweave/web/lib/transaction";
-import type { AppInfo } from "arweave-wallet-connector";
-import { decodeTags } from "./utils";
+import { bufferTob64, b64UrlToBuffer } from "arweave/web/lib/utils";
+import Arweave from "arweave/web";
 import {
-  Othent,
-  queryWalletAddressTxnsProps,
-  readCustomContractProps,
-  SendTransactionArweaveProps,
-  SendTransactionBundlrProps,
-  SendTransactionWarpProps,
-  SignTransactionBundlrProps,
-  SignTransactionWarpProps,
-  useOthentReturnProps,
-  verifyArweaveDataProps,
-  verifyBundlrDataProps
-} from "othent";
+  connect,
+  decrypt,
+  encrypt,
+  disconnect,
+  dispatch,
+  getActiveKey,
+  getActivePublicKey,
+  getWalletNames,
+  sign,
+  signature
+} from "@othent/kms";
+
+import { deleteStoredToken, isBase64, userDetails } from "./utils";
+import { ConnectResult } from "./types";
 
 export default class OthentStrategy implements Strategy {
   public id: "othent" = "othent";
@@ -26,10 +28,13 @@ export default class OthentStrategy implements Strategy {
   public theme = "35, 117, 239";
   public logo = "33nBIUNlGK4MnWtJZQy9EzkVJaAd7WoydIKfkJoMvDs";
   public url = "https://othent.io";
+  public config: GatewayConfig = {
+    host: "arweave.net",
+    port: 443,
+    protocol: "https"
+  };
 
-  #apiID = "e923634af8cc8b63bc8c74735d177aae";
   #addressListeners: ListenerFunction[] = [];
-  #othent: useOthentReturnProps | undefined;
   #currentAddress: string = "";
 
   constructor() {}
@@ -38,73 +43,24 @@ export default class OthentStrategy implements Strategy {
    * Advanced function to override the default API ID
    * Othent uses.
    */
-  public __overrideApiID(othentApiID: string) {
-    this.#apiID = othentApiID;
-  }
-
-  async #othentInstance(ensureConnection = true) {
-    if (this.#othent && !ensureConnection) {
-      return this.#othent;
-    }
-
-    if (!this.#othent) {
-      try {
-        // init othent
-        this.#othent = await Othent({
-          API_ID: this.#apiID
-        });
-      } catch (error: any) {
-        throw new Error(`[Arweave Wallet Kit] ${error.message ?? error}`);
-      }
-    }
-
-    if (ensureConnection) {
-      const permissions = await this.getPermissions();
-
-      if (permissions.length === 0) {
-        throw new Error("[Arweave Wallet Kit] You are not connected to Othent");
-      }
-    }
-
-    return this.#othent;
-  }
 
   public async isAvailable() {
-    try {
-      // ensure instance
-      await this.#othentInstance(false);
-
-      return true;
-    } catch {
-      return false;
-    }
+    return true;
   }
 
-  public async ping() {
-    const othent = await this.#othentInstance(false);
-
-    return await othent.ping();
-  }
-
-  public async connect(
-    permissions: PermissionType[],
-    appInfo?: AppInfo,
-    gateway?: GatewayConfig
-  ) {
-    const othent = await this.#othentInstance(false);
-    const res = await othent.logIn({ testNet: false });
+  public async connect() {
+    const user = (await connect()) as ConnectResult;
 
     for (const listener of this.#addressListeners) {
-      listener(res.contract_id);
+      listener(user.walletAddress);
     }
 
-    this.#currentAddress = res.contract_id;
+    this.#currentAddress = user.walletAddress;
   }
 
   public async disconnect() {
-    const othent = await this.#othentInstance();
-
-    await othent.logOut();
+    await disconnect();
+    deleteStoredToken();
 
     for (const listener of this.#addressListeners) {
       listener(undefined as any);
@@ -113,16 +69,36 @@ export default class OthentStrategy implements Strategy {
     this.#currentAddress = "";
   }
 
+  public async decrypt(data: Uint8Array): Promise<Uint8Array> {
+    const response = (await decrypt(data)) as string;
+
+    if (!isBase64(response)) {
+      throw new Error("Failed to decrypt your file");
+    }
+
+    return b64UrlToBuffer(response);
+  }
+
+  public async dispatch(transaction: Transaction): Promise<{ id: string }> {
+    const arweave = Arweave.init(this.config);
+    
+    return dispatch(transaction, "https://turbo.ardrive.io", arweave);
+  }
+
+  public async encrypt(data: Uint8Array): Promise<Uint8Array> {
+    const base64 = bufferTob64(data);
+
+    return encrypt(base64) as unknown as Uint8Array;
+  }
+
   public async getPermissions() {
-    const othent = await this.#othentInstance(false);
-
     try {
-      const res = await othent.userDetails();
+      const res = await userDetails();
 
-      if (res.contract_id !== this.#currentAddress) {
-        this.#currentAddress = res.contract_id;
+      if (res.walletAddress !== this.#currentAddress) {
+        this.#currentAddress = res.walletAddress;
         for (const listener of this.#addressListeners) {
-          listener(res.contract_id);
+          listener(res.walletAddress);
         }
       }
 
@@ -143,22 +119,35 @@ export default class OthentStrategy implements Strategy {
   }
 
   public async getActiveAddress(): Promise<string> {
-    const othent = await this.#othentInstance(false);
-    const res = await othent.userDetails();
+    const address = await getActiveKey();
 
-    return res.contract_id;
+    return address;
   }
 
   public async getAllAddresses(): Promise<string[]> {
-    const addr = await this.getActiveAddress();
+    const addr = await getActiveKey();
 
     return [addr];
   }
 
-  /**
-   * Same as "sendTransactionArweave()" of the Othent SDK
-   */
-  // @ts-expect-error - Return type is different for Othent transaction signing
+  public async getArweaveConfig(): Promise<GatewayConfig> {
+    return this.config;
+  }
+
+  public async getActivePublicKey(): Promise<string> {
+    const pubKey = await getActivePublicKey();
+
+    return pubKey;
+  }
+
+  public async getWalletNames(): Promise<{
+    [addr: string]: string;
+  }> {
+    const addr = await getWalletNames();
+
+    return { addr };
+  }
+
   public async sign(transaction: Transaction, options?: SignatureOptions) {
     if (options) {
       console.warn(
@@ -166,132 +155,23 @@ export default class OthentStrategy implements Strategy {
       );
     }
 
+    if (!this.#currentAddress) {
+      throw new Error("You need to be loggedin before signing a transaction");
+    }
+
     if (transaction.quantity !== "0" && transaction.target !== "") {
       throw new Error(
         "[Arweave Wallet Kit] Signing with Othent only supports data type transactions"
       );
     }
-    const othent = await this.#othentInstance(false);
 
-    const signedTransaction = await othent.signTransactionArweave({
-      othentFunction: "uploadData",
-      data: transaction.data,
-      tags: decodeTags(transaction.tags)
-    });
+    const signedTransaction = await sign(transaction);
 
     return signedTransaction;
   }
 
-  public async signTransactionBundlr(params: SignTransactionBundlrProps) {
-    const othent = await this.#othentInstance();
-
-    return await othent.signTransactionBundlr(params);
-  }
-
-  public async signTransactionWarp(params: SignTransactionWarpProps) {
-    const othent = await this.#othentInstance();
-
-    return await othent.signTransactionWarp(params);
-  }
-
-  public async sendTransactionArweave(params: SendTransactionArweaveProps) {
-    const othent = await this.#othentInstance();
-
-    return await othent.sendTransactionArweave(params);
-  }
-
-  public async sendTransactionBundlr(params: SendTransactionBundlrProps) {
-    const othent = await this.#othentInstance();
-
-    return await othent.sendTransactionBundlr(params);
-  }
-
-  public async sendTransactionWarp(params: SendTransactionWarpProps) {
-    const othent = await this.#othentInstance();
-
-    return await othent.sendTransactionWarp(params);
-  }
-
-  public async verifyArweaveData(params: verifyArweaveDataProps) {
-    const othent = await this.#othentInstance();
-
-    return await othent.verifyArweaveData(params);
-  }
-
-  public async verifyBundlrData(params: verifyBundlrDataProps) {
-    const othent = await this.#othentInstance();
-
-    return await othent.verifyBundlrData(params);
-  }
-
-  public async dispatch(transaction: Transaction): Promise<DispatchResult> {
-    try {
-      const othent = await this.#othentInstance(false);
-
-      const tags = decodeTags(transaction.tags);
-
-      const signedTransaction = await othent.signTransactionBundlr({
-        othentFunction: "uploadData",
-        data: transaction.data,
-        tags
-      });
-
-      const res = await othent.sendTransactionBundlr(signedTransaction);
-
-      if (res.success === true) {
-        return { id: res.transactionId, type: "BUNDLED" };
-      } else {
-        try {
-          const othent = await this.#othentInstance(false);
-
-          const signedTransaction = await othent.signTransactionArweave({
-            othentFunction: "uploadData",
-            data: transaction.data,
-            tags
-          });
-
-          const res = await othent.sendTransactionArweave(signedTransaction);
-
-          if (res.success === true) {
-            return { id: res.transactionId, type: "BASE" };
-          } else {
-            throw new Error(
-              `Failed to dispatch layer transaction. Please recheck request.`
-            );
-          }
-        } catch (error) {
-          throw new Error(
-            `Unable to dispatch Base layer transaction: ${error}`
-          );
-        }
-      }
-    } catch (error) {
-      throw new Error(`Unable to dispatch Bundled transaction: ${error}`);
-    }
-  }
-
-  public async queryWalletAddressTxns(params: queryWalletAddressTxnsProps) {
-    const othent = await this.#othentInstance();
-
-    return await othent.queryWalletAddressTxns(params);
-  }
-
   public async userDetails() {
-    const othent = await this.#othentInstance();
-
-    return await othent.userDetails();
-  }
-
-  public async readContract() {
-    const othent = await this.#othentInstance();
-
-    return await othent.readContract();
-  }
-
-  public async readCustomContract(params: readCustomContractProps) {
-    const othent = await this.#othentInstance();
-
-    return await othent.readCustomContract(params);
+    return await userDetails();
   }
 
   public addAddressEvent(listener: ListenerFunction) {
@@ -308,6 +188,10 @@ export default class OthentStrategy implements Strategy {
       this.#addressListeners.indexOf(listener as any),
       1
     );
+  }
+
+  public async signature(data: Uint8Array): Promise<Uint8Array> {
+    return await signature(data);
   }
 }
 

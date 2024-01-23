@@ -14,7 +14,7 @@ export default defineConfig({
       fileName: (format) => `index.${format}.js`
     },
     rollupOptions: {
-      external: ["othent", "@arweave-wallet-kit/core"]
+      external: ["@arweave-wallet-kit/core"]
     }
   }
 });
