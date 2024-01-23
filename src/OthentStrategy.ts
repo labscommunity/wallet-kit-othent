@@ -3,7 +3,19 @@ import type { DispatchResult, GatewayConfig, PermissionType } from "arconnect";
 import { Strategy } from "@arweave-wallet-kit/core/strategy";
 import type Transaction from "arweave/web/lib/transaction";
 import { bufferTob64, b64UrlToBuffer } from "arweave/web/lib/utils";
-import * as othent from "@othent/kms";
+import Arweave from "arweave/web";
+import {
+  connect,
+  decrypt,
+  encrypt,
+  disconnect,
+  dispatch,
+  getActiveKey,
+  getActivePublicKey,
+  getWalletNames,
+  sign,
+  signature
+} from "@othent/kms";
 
 import { deleteStoredToken, isBase64, userDetails } from "./utils";
 import { ConnectResult } from "./types";
@@ -37,7 +49,7 @@ export default class OthentStrategy implements Strategy {
   }
 
   public async connect() {
-    const user = (await othent.connect()) as ConnectResult;
+    const user = (await connect()) as ConnectResult;
 
     for (const listener of this.#addressListeners) {
       listener(user.walletAddress);
@@ -47,7 +59,7 @@ export default class OthentStrategy implements Strategy {
   }
 
   public async disconnect() {
-    await othent.disconnect();
+    await disconnect();
     deleteStoredToken();
 
     for (const listener of this.#addressListeners) {
@@ -58,7 +70,7 @@ export default class OthentStrategy implements Strategy {
   }
 
   public async decrypt(data: Uint8Array): Promise<Uint8Array> {
-    const response = await othent.decrypt(data);
+    const response = (await decrypt(data)) as string;
 
     if (!isBase64(response)) {
       throw new Error("Failed to decrypt your file");
@@ -68,13 +80,15 @@ export default class OthentStrategy implements Strategy {
   }
 
   public async dispatch(transaction: Transaction): Promise<{ id: string }> {
-    return othent.dispatch(transaction);
+    const arweave = Arweave.init(this.config);
+    
+    return dispatch(transaction, "https://turbo.ardrive.io", arweave);
   }
 
   public async encrypt(data: Uint8Array): Promise<Uint8Array> {
     const base64 = bufferTob64(data);
 
-    return othent.encrypt(base64) as unknown as Uint8Array;
+    return encrypt(base64) as unknown as Uint8Array;
   }
 
   public async getPermissions() {
@@ -105,13 +119,13 @@ export default class OthentStrategy implements Strategy {
   }
 
   public async getActiveAddress(): Promise<string> {
-    const address = await othent.getActiveKey();
+    const address = await getActiveKey();
 
     return address;
   }
 
   public async getAllAddresses(): Promise<string[]> {
-    const addr = await othent.getActiveKey();
+    const addr = await getActiveKey();
 
     return [addr];
   }
@@ -121,7 +135,7 @@ export default class OthentStrategy implements Strategy {
   }
 
   public async getActivePublicKey(): Promise<string> {
-    const pubKey = await othent.getActivePublicKey();
+    const pubKey = await getActivePublicKey();
 
     return pubKey;
   }
@@ -129,7 +143,7 @@ export default class OthentStrategy implements Strategy {
   public async getWalletNames(): Promise<{
     [addr: string]: string;
   }> {
-    const addr = await othent.getWalletNames();
+    const addr = await getWalletNames();
 
     return { addr };
   }
@@ -151,7 +165,7 @@ export default class OthentStrategy implements Strategy {
       );
     }
 
-    const signedTransaction = await othent.sign(transaction);
+    const signedTransaction = await sign(transaction);
 
     return signedTransaction;
   }
@@ -177,7 +191,7 @@ export default class OthentStrategy implements Strategy {
   }
 
   public async signature(data: Uint8Array): Promise<Uint8Array> {
-    return await othent.signature(data);
+    return await signature(data);
   }
 }
 

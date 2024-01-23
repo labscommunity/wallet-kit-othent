@@ -28,7 +28,7 @@ export async function userDetails(): Promise<ConnectResult> {
     throw new Error("Error retrieving session id_token.");
   }
 
-  const decoded_JWT: DecodedJWT = jwtDecode(id_token);
+  const decoded_JWT: ConnectResult = jwtDecode(id_token);
   delete decoded_JWT.nonce;
   delete decoded_JWT.sid;
   delete decoded_JWT.aud;
