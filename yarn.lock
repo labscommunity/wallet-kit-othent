@@ -12,9 +12,9 @@
   resolved "https://registry.yarnpkg.com/@auth0/auth0-spa-js/-/auth0-spa-js-2.1.0.tgz#f1515d5e7d6b6bebe2a035b7297f936e8711f80f"
   integrity sha512-7cF2NxrslgjArIdBwpNg02atPldpHHOrXxDScL71cbxKuKny3eziZIpNHQAdsPFiLhjKQ+izWmLq2ZRFlYB/eQ==
 
-"@auth0/auth0-spa-js@^2.1.2":
+"@auth0/auth0-spa-js@^2.1.3":
   version "2.1.3"
-  resolved "https://registry.yarnpkg.com/@auth0/auth0-spa-js/-/auth0-spa-js-2.1.3.tgz#aabf6f439e41edbeef0cf4766ad754e5b47616e5"
+  resolved "https://registry.npmjs.org/@auth0/auth0-spa-js/-/auth0-spa-js-2.1.3.tgz#aabf6f439e41edbeef0cf4766ad754e5b47616e5"
   integrity sha512-NMTBNuuG4g3rame1aCnNS5qFYIzsTUV5qTFPRfTyYFS1feS6jsCBR+eTq9YkxCp1yuoM2UIcjunPaoPl77U9xQ==
 
 "@babel/parser@^7.21.3":
@@ -132,6 +132,11 @@
   resolved "https://registry.yarnpkg.com/@esbuild/win32-x64/-/win32-x64-0.18.12.tgz#1da26735ce5954bf914f8f2117b5096c548bbba2"
   integrity sha512-O0UYQVkvfM/jO8a4OwoV0mAKSJw+mjWTAd1MJd/1FCX6uiMdLmMRPK/w6e9OQ0ob2WGxzIm9va/KG0Ja4zIOgg==
 
+"@fastify/busboy@^2.0.0":
+  version "2.1.1"
+  resolved "https://registry.npmjs.org/@fastify/busboy/-/busboy-2.1.1.tgz#b9da6a878a371829a0502c9b6c1c143ef6663f4d"
+  integrity sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==
+
 "@microsoft/api-extractor-model@7.27.4":
   version "7.27.4"
   resolved "https://registry.yarnpkg.com/@microsoft/api-extractor-model/-/api-extractor-model-7.27.4.tgz#ddc566ead99737c1032d692829edd954870f7d35"
@@ -174,22 +179,21 @@
   resolved "https://registry.yarnpkg.com/@microsoft/tsdoc/-/tsdoc-0.14.2.tgz#c3ec604a0b54b9a9b87e9735dfc59e1a5da6a5fb"
   integrity sha512-9b8mPpKrfeGRuhFH5iO1iwCLeIIsV6+H1sRfxbkoGXIyQE2BTsPd9zqSqQJ+pv5sJ/hT5M1zvOFL02MnEezFug==
 
-"@othent/kms@^1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@othent/kms/-/kms-1.0.7.tgz#1b7cc4816038db6ca4299efa77264aa54c490455"
-  integrity sha512-k9EyAL5QJ7l2iXJS20Ccck9SukHawFtjSmDAzhih0f2vJl430dseIUEEy8awhtIhBv48FsP2wxKYEGrzaW2PAw==
+"@othent/kms@^1.0.12":
+  version "1.0.12"
+  resolved "https://registry.npmjs.org/@othent/kms/-/kms-1.0.12.tgz#6cbe6498fcc56eda2495c1704415b828536d1dd3"
+  integrity sha512-0T4DSqjEI9Lh0642Of/cGEvl2bx80ZsIIKJoHijAup0So2/o0rfirkxttmWfHOySWxLJ1PEwzoC+iflF5MFPzg==
   dependencies:
-    "@auth0/auth0-spa-js" "^2.1.2"
-    Buffer "^0.0.0"
+    "@auth0/auth0-spa-js" "^2.1.3"
     arweave "^1.14.4"
     axios "^1.6.0"
     base64-js "^1.5.1"
-    base64url "^3.0.1"
     buffer "^6.0.3"
     jwk-to-pem "^2.0.5"
     jwt-decode "^4.0.0"
     pem-jwk "^2.0.0"
     tmp-promise "^3.0.3"
+    warp-arbundles "^1.0.4"
 
 "@rollup/pluginutils@^5.0.2":
   version "5.0.2"
@@ -319,11 +323,6 @@
     "@volar/typescript" "~1.8.0"
     "@vue/language-core" "1.8.4"
 
-Buffer@^0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/Buffer/-/Buffer-0.0.0.tgz#82cf8e986a2109ff6d1d6f1c436e47d07127aea4"
-  integrity sha512-+zdncl8lI5TCkARStn9F1BwcuJYofYmD0oEHe5FNfCvGfeDJwf6+dSikCdQN6BMXXmHMhNNUagBN367WST1AIQ==
-
 ajv@~6.12.6:
   version "6.12.6"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.12.6.tgz#baf5a62e802b07d977034586f8c3baf5adf26df4"
@@ -362,6 +361,16 @@ arweave@^1.12.2, arweave@^1.14.4:
   version "1.14.4"
   resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.14.4.tgz#5ba22136aa0e7fd9495258a3931fb770c9d6bf21"
   integrity sha512-tmqU9fug8XAmFETYwgUhLaD3WKav5DaM4p1vgJpEj/Px2ORPPMikwnSySlFymmL2qgRh2ZBcZsg11+RXPPGLsA==
+  dependencies:
+    arconnect "^0.4.2"
+    asn1.js "^5.4.1"
+    base64-js "^1.5.1"
+    bignumber.js "^9.0.2"
+
+arweave@^1.13.7:
+  version "1.15.0"
+  resolved "https://registry.npmjs.org/arweave/-/arweave-1.15.0.tgz#56203c13badf28a0e420ca700d966e89a53c711b"
+  integrity sha512-sYfq2yJwkJLthRADsfHygNP+L7fTCyprTjOLYnpP8zaqwywddoNO3UpTk6XGjEiyyU3WfxoFLRLpzx+llZx1WA==
   dependencies:
     arconnect "^0.4.2"
     asn1.js "^5.4.1"
@@ -985,6 +994,13 @@ typescript@~5.0.4:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.0.4.tgz#b217fd20119bd61a94d4011274e0ab369058da3b"
   integrity sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==
 
+undici@^5.19.1:
+  version "5.28.4"
+  resolved "https://registry.npmjs.org/undici/-/undici-5.28.4.tgz#6b280408edb6a1a604a9b20340f45b422e373068"
+  integrity sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==
+  dependencies:
+    "@fastify/busboy" "^2.0.0"
+
 universalify@^0.1.0:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/universalify/-/universalify-0.1.2.tgz#b646f69be3942dabcecc9d6639c80dc105efaa66"
@@ -1045,6 +1061,24 @@ vue-tsc@^1.8.1:
     "@vue/language-core" "1.8.4"
     "@vue/typescript" "1.8.4"
     semver "^7.3.8"
+
+warp-arbundles@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/warp-arbundles/-/warp-arbundles-1.0.4.tgz#10c0cd662ab41b0dabad9159c7110f43425cc5cc"
+  integrity sha512-KeRac/EJ7VOK+v5+PSMh2SrzpCKOAFnJICLlqZWt6qPkDCzVwcrNE5wFxOlEk5U170ewMDAB3e86UHUblevXpw==
+  dependencies:
+    arweave "^1.13.7"
+    base64url "^3.0.1"
+    buffer "^6.0.3"
+    warp-isomorphic "^1.0.7"
+
+warp-isomorphic@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.npmjs.org/warp-isomorphic/-/warp-isomorphic-1.0.7.tgz#abf1ee7bce44bec7c6b97547859e614876869aa7"
+  integrity sha512-fXHbUXwdYqPm9fRPz8mjv5ndPco09aMQuTe4kXfymzOq8V6F3DLsg9cIafxvjms9/mc6eijzkLBJ63yjEENEjA==
+  dependencies:
+    buffer "^6.0.3"
+    undici "^5.19.1"
 
 wrappy@1:
   version "1.0.2"

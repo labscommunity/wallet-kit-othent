@@ -10,7 +10,7 @@ import {
   encrypt,
   disconnect,
   dispatch,
-  getActiveKey,
+  getActiveAddress,
   getActivePublicKey,
   getWalletNames,
   sign,
@@ -119,13 +119,13 @@ export default class OthentStrategy implements Strategy {
   }
 
   public async getActiveAddress(): Promise<string> {
-    const address = await getActiveKey();
+    const address = await getActiveAddress();
 
     return address;
   }
 
   public async getAllAddresses(): Promise<string[]> {
-    const addr = await getActiveKey();
+    const addr = await getActiveAddress();
 
     return [addr];
   }
